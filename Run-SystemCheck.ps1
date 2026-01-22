@@ -30,12 +30,11 @@ if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Adm
 
     try {
         Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs -ErrorAction Stop
-        exit
-    }
-    catch {
+    } catch {
         Write-Log -Error "Admin prompt declined; exiting script"
-        exit
     }
+
+    exit
 }
 
 Clear-Host
@@ -81,4 +80,11 @@ $formatted = "{0:N2} MB" -f $totalMb
 Write-Log -Success "Cleaned $formatted of temporary files"
 
 Write-Log -Success "System check completed"
-Pause
+
+$response = (Read-Host "Restart machine? (Y/n)").Trim()
+if ($response -ieq "y" -or -not $response) {
+    Write-Host "Restarting machine..."
+} else {
+    Write-Host "Exiting..."
+    exit
+}
