@@ -41,6 +41,7 @@ if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Adm
 Clear-Host
 Write-Host "`n--- SYSTEM CHECK ---`n" -ForegroundColor Cyan
 
+Write-Log "This may take several minutes"
 Write-Log "Running DISM..."
 DISM /Online /Cleanup-Image /RestoreHealth
 
@@ -55,23 +56,23 @@ Optimize-Volume -DriveLetter C -ReTrim -Defrag -Verbose
 
 Write-Log "Cleaning temporary files..."
 $totalBytesDeleted = 0
-$TempPaths = @(
+$tempPaths = @(
     "$env:windir\Temp",
     $env:TEMP
 )
 
-foreach ($Path in $TempPaths) {
-    if (Test-Path $Path) {
-        Write-Log "Cleaning: $Path"
+foreach ($path in $tempPaths) {
+    if (Test-Path $path) {
+        Write-Log "Cleaning: $path"
 
-        $Items = Get-ChildItem -Path $Path -Recurse -Force -ErrorAction SilentlyContinue
-        foreach ($Item in $Items) {
-            if (-not $Item.PSIsContainer) {
-                $totalBytesDeleted += $Item.Length
+        $items = Get-ChildItem -Path $path -Recurse -Force -ErrorAction SilentlyContinue
+        foreach ($item in $items) {
+            if (-not $item.PSIsContainer) {
+                $totalBytesDeleted += $item.Length
             }
         }
 
-        $Items | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+        $items | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
     }
 }
 
