@@ -53,5 +53,31 @@ ipconfig /flushdns
 Write-Log "Running storage optimization..."
 Optimize-Volume -DriveLetter C -ReTrim -Defrag -Verbose
 
+Write-Log "Cleaning temporary files..."
+$totalBytesDeleted = 0
+$TempPaths = @(
+    "$env:windir\Temp",
+    $env:TEMP
+)
+
+foreach ($Path in $TempPaths) {
+    if (Test-Path $Path) {
+        Write-Log "Cleaning: $Path"
+
+        $Items = Get-ChildItem -Path $Path -Recurse -Force -ErrorAction SilentlyContinue
+        foreach ($Item in $Items) {
+            if (-not $Item.PSIsContainer) {
+                $totalBytesDeleted += $Item.Length
+            }
+        }
+
+        $Items | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+
+$totalMb = $totalBytesDeleted / 1000000
+$formatted = "{0:N2} MB" -f $totalMb
+Write-Log -Success "Cleaned $formatted of temporary files"
+
 Write-Log -Success "System check completed"
 Pause
