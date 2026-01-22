@@ -84,6 +84,7 @@ Write-Log -Success "System check completed"
 $response = (Read-Host "Restart machine? (Y/n)").Trim()
 if ($response -ieq "y" -or -not $response) {
     Write-Host "Restarting machine..."
+    Restart-Computer
 } else {
     Write-Host "Exiting..."
     exit
